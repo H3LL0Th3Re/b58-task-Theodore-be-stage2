@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx ts-node dist/route.js",
     "dev": "nodemon src/route.ts",
-    "build": "tsc && prisma generate"
+    "build": "tsc && prisma generate",
+    "postinstall": "prisma generate"
   },
   "author": "",
   "license": "ISC",
