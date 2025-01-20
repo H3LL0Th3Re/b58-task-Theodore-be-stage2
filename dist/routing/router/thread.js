@@ -1,0 +1,23 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const thread_controller_1 = require("../../controllers/thread.controller");
+const auth_midware_1 = require("../../middlewares/auth_midware");
+const upload_file_1 = require("../../middlewares/upload-file");
+const like_controller_1 = require("../../controllers/like.controller");
+const reply_controller_1 = require("../../controllers/reply.controller");
+const thread_app = express_1.default.Router();
+thread_app.post('/', auth_midware_1.auth_mid, upload_file_1.upload.single('image'), thread_controller_1.createThread);
+thread_app.put('/:id', auth_midware_1.auth_mid, upload_file_1.upload.single('image'), thread_controller_1.updateThread);
+thread_app.post('/reply', auth_midware_1.auth_mid, upload_file_1.upload.single('image'), reply_controller_1.createReply);
+thread_app.get('/', auth_midware_1.auth_mid, thread_controller_1.getAllThreads);
+thread_app.get('/user-likes', auth_midware_1.auth_mid, like_controller_1.getUserLikes);
+thread_app.get('/thread-user', auth_midware_1.auth_mid, thread_controller_1.getThreadsByUser);
+thread_app.get("/:threadId", thread_controller_1.getThreadById);
+thread_app.post('/like', auth_midware_1.auth_mid, like_controller_1.toggleLikeThread);
+thread_app.delete('/reply/:id', auth_midware_1.auth_mid, reply_controller_1.deleteReply);
+thread_app.delete('/:id', auth_midware_1.auth_mid, thread_controller_1.deleteThread);
+exports.default = thread_app;
