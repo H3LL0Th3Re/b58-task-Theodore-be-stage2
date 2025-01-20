@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// model Thread {
+//   id        Int      @id @default(autoincrement())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   content   String
+//   author    Users     @relation(fields: [authorId], references: [id])
+//   authorId  Int
+//   image     String? // optional image
+//   isDeleted Int      @default(0)
+
+// }
+
+// model Users{
+//   id        Int      @id @default(autoincrement())
+//   email     String   @unique
+//   username  String   @unique
+//   fullname  String?
+//   password  String
+//   threads   Thread[]
+//   isDeleted Int      @default(0)
+// }
+
+model Users {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  username  String   @unique
+  fullname  String?
+  password  String
+  profile_pic String?
+  banner_pic String?
+  bio String?
+  threads   Thread[]
+  likes     Like[]
+  replies   Reply[]
+  followers Follower[] @relation("FollowerRelation") 
+  following Follower[] @relation("FollowingRelation") 
+  isDeleted Int      @default(0)
+}
+
+model Thread {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String
+  author    Users     @relation(fields: [authorId], references: [id])
+  authorId  Int
+  image     String? // optional image
+  replies   Reply[]
+  likes     Like[]
+  isDeleted Int      @default(0)
+}
+
+model Follower {
+  id         Int    @id @default(autoincrement())
+  follower   Users  @relation("FollowerRelation", fields: [followerId], references: [id])
+  followerId Int
+  following  Users  @relation("FollowingRelation", fields: [followingId], references: [id])
+  followingId Int
+  createdAt  DateTime @default(now())
+
+  @@unique([followerId, followingId]) // Ensures no duplicate follow entries
+}
+
+model Like {
+  id        Int    @id @default(autoincrement())
+  user      Users  @relation(fields: [userId], references: [id])
+  userId    Int
+  thread    Thread @relation(fields: [threadId], references: [id])
+  threadId  Int
+  createdAt DateTime @default(now())
+
+  @@unique([userId, threadId]) // Ensures a user can only like a thread once
+}
+
+model Reply {
+  id        Int      @id @default(autoincrement())
+  thread    Thread   @relation(fields: [threadId], references: [id])
+  threadId  Int
+  user      Users    @relation(fields: [userId], references: [id])
+  userId    Int
+  replyImage     String?
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  parentId  Int?     // This allows for nested replies (a reply to another reply)
+  parent    Reply?   @relation("ReplyToReply", fields: [parentId], references: [id])
+  children  Reply[]  @relation("ReplyToReply")
+}
+
